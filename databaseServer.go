@@ -7,23 +7,24 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/mainframematrix/MongoDB-Database-Server/database"
 	handler "github.com/mainframematrix/MongoDB-Database-Server/handler"
 )
 
 func main() {
-	client, err := handler.ConnectDatabase()
+	client, err := database.ConnectDatabase()
 	if err != nil {
 		log.Fatalf("MongoDB initialization failed: %v", err)
 		panic(err)
 	}
-	defer handler.CloseDatabase(client)
+	defer database.CloseDatabase(client)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-quit
 		log.Println("Server shutting down...")
-		handler.CloseDatabase(client)
+		database.CloseDatabase(client)
 		os.Exit(0)
 	}()
 
